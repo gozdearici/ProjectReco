@@ -1,4 +1,4 @@
-# ProjectReco
+# Project Reco
 ## Contents
 
 #### There are two files of the Smart Reco project. It does the same for both files.
