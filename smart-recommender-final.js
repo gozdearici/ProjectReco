@@ -2,8 +2,6 @@ const createProductList = () => {
     const productList = document.createElement('section')
 
     productList.className = "slider-wrapper"
-    productList.style.width = "80%"
-    productList.style.margin = "0 auto"
     return productList
 }
 
@@ -12,10 +10,6 @@ const createProductsTitle = () => {
 
     productsTitle.className = 'products-title'
     productsTitle.innerHTML = "You might also like"
-    productsTitle.style.fontSize = "25px"
-    productsTitle.style.fontWeight = "500"
-    productsTitle.style.marginBottom = "40px"
-    productsTitle.style.textTransform = "uppercase"
     return productsTitle
 }
 
@@ -23,13 +17,7 @@ const createNavigationButton = (buttonDirection) => {
     const button = document.createElement("button");
 
     button.innerText = buttonDirection == "left" ? "<" : ">"
-    button.style.background = "linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #fff 80%)"
-    button.style.border = "none"
-    button.style.fontSize = "50px"
-    button.style.cursor = "pointer"
-    button.style.position = "absolute"
-    button.style.zIndex = "8"
-    button.style.marginTop = "3em"
+
 
     if (buttonDirection == "left") button.style.left = "8%";
     else button.style.right = "5%"
@@ -41,84 +29,35 @@ const createProductContainer = () => {
     const productContainer = document.createElement('div')
 
     productContainer.className = "product-container"
-    productContainer.style.scrollSnapType = "x mandatory"
-    productContainer.style.display = "grid"
-    productContainer.style.gridAutoColumns = "20%"
-    productContainer.style.alignItems = "center"
-    productContainer.style.gridAutoFlow = "column"
-    productContainer.style.marginLeft = "35px"
-    productContainer.style.overflow = "hidden"
-    productContainer.style.listStyle = "none"
-    productContainer.style.scrollBehavior = "smooth"
+    
     return productContainer;
 }
 
 const createProductCard = (productImg, productUrl, productName, price) => {
     const productCard = document.createElement('div');
+    const productFrame = document.createElement('div');
+    const productImage = document.createElement('img');
+    const productInfo = document.createElement('div');
+    const productDescription = document.createElement('p');
+    const productPrice = document.createElement('span');
 
     productCard.className = "product-card"
-
-    productCard.style.scrollSnapAlign = "start"
-    productCard.style.flex = "grid"
-    productCard.style.objectFit = "cover"
-    productCard.style.width = "250px"
-    productCard.style.height = "450px"
-    productCard.style.cursor = "pointer"
-
-    productContainer.appendChild(productCard)
-
-    const productFrame = document.createElement('div')
-
     productFrame.className = "product-frame"
-
-    productFrame.style.position = "relative"
-    productFrame.style.width = "100%"
-
-    productCard.appendChild(productFrame)
-
-    const productImage = document.createElement('img')
-    
     productImage.className = "product-image"
+    productInfo.className = "product-info"
+    productDescription.className = "product-short-description"
+    productPrice.className = "product-price"
 
     productImage.src = `${productImg}`;
-    productImage.style.width = "100%"
-    productImage.style.height = "100%"
-    productImage.style.objectFit = "cover"
 
+    productDescription.innerText = productName;
+    productPrice.innerText =  price ? `${price} TL` : "Bu ürün stokta yoktur";
+
+    productContainer.appendChild(productCard)
+    productCard.appendChild(productFrame)
     productFrame.appendChild(productImage)
-    
-    const productInfo = document.createElement('div')
-
-    productInfo.className = "product-info"
-
-    productInfo.style.display = "flex"
-    productInfo.style.flexDirection = "column"
-    productInfo.style.gap = "10px"
-    productInfo.style.width = "100%"
-    productInfo.style.paddingTop = "10px"
-
     productCard.appendChild(productInfo);
-    
-    const productDescription = document.createElement('p')
-
-    productDescription.className = "product-short-description"
-
-    productDescription.innerText = productName
-    productDescription.style.width = "100%"
-    productDescription.style.height = "20px"
-    productDescription.style.lineHeight = "20px"
-    productDescription.style.opacity = "0.5"
-
     productInfo.appendChild(productDescription);
-    
-    const productPrice = document.createElement('span')
-
-    productPrice.className = "product-price"
-    
-    productPrice.innerText =  price ? `${price} TL` : "Bu ürün stokta yoktur"
-    productPrice.style.fontWeight = "900"
-    productPrice.style.fontSize = "20px"
-
     productInfo.appendChild(productPrice)
 
     productCard.addEventListener("click", () => {
@@ -138,14 +77,6 @@ const fetchProducts = async () => {
     const response = await fetch('https://opt-interview-projects.onrender.com/smart-recommender')
     let products = await response.json()
     return products;    
-}
-
-const handleResize = productContainer => {
-    if(window.innerWidth > 1550) productContainer.style.gridAutoColumns = "20%"
-    else if(window.innerWidth > 1250) productContainer.style.gridAutoColumns = "25%"
-    else if(window.innerWidth > 800) productContainer.style.gridAutoColumns = "33%"
-    else if(window.innerWidth > 590) productContainer.style.gridAutoColumns = "50%"
-    else productContainer.style.gridAutoColumns = "100%"
 }
 
 initializeJQuery();
@@ -173,16 +104,102 @@ products.forEach(product => {
 
 $(".footer-content")[0].appendChild(productList)
 
-const slideAmount = $(".product-card")[0].clientWidth;
-
 nextButton.addEventListener("click", () => {
-    const slideWidth = slideAmount;
-        productContainer.scrollLeft += slideWidth;
+        productContainer.scrollLeft += $(".product-card")[0].clientWidth;
     });
 
 previousButton.addEventListener("click", () => {
-    const slideWidth = slideAmount;
-        productContainer.scrollLeft -= slideWidth;
+        productContainer.scrollLeft -= $(".product-card")[0].clientWidth;
     });
 
-window.addEventListener('resize', () => handleResize(productContainer));
+const style = document.createElement("style")
+style.innerText = `
+    .slider-wrapper {
+        position : static;
+        width : 80%;
+        margin : 0 auto;
+    }
+
+    .products-title {
+        font-size : 25px;
+        font-weight : 500;
+        margin-bottom : 40px;
+        text-transform : uppercase;
+    }
+
+    .product-container {
+        scroll-snap-type : x mandatory;
+        display : grid;
+        grid-auto-columns : 20%;
+        align-items : center;
+        grid-auto-flow : column;
+        margin-left : 35px;
+        overflow :  hidden;
+        list-style : none;
+        scroll-behavior : smooth;
+    }
+
+    .button {
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #fff 80%);
+        border : none;
+        font-size: 50px;
+        cursor : pointer;
+        position : absolute;
+        z-index: 8;
+        margin-top: 3em;
+    }
+
+    .product-card {
+        scroll-snap-align : start;
+        flex : grid;
+        object-fit : cover;
+        width : 250px;
+        height : 450px;
+        cursor : pointer;
+    }
+
+    .product-frame {
+        position : relative;
+        width : 100%;
+    }
+
+    .product-image {
+        width : 100%;
+        height : 100%;
+        object-fit : cover;
+    }
+
+    .product-info {
+        display : flex;
+        flex-direction : column;
+        gap : 10px;
+        width : 100%;
+        padding-top : 10px;
+    }
+
+    .product-short-description {
+        width : 100%;
+        height : 20px;
+        line-height : 20px;
+        opacity : 0.5;
+    }
+
+    .product-price {
+        font-weight : 700;
+        font-size : 20px;
+    }
+
+    @media (max-width: 1024px) and (min-width: 768px) {
+        .product-container {
+            grid-auto-columns : 33%;
+        }
+
+    }
+    
+    @media screen and (max-width: 768px) {
+        .product-container {
+            grid-auto-columns : 100%;
+        }  
+    }
+`
+document.head.appendChild(style);
