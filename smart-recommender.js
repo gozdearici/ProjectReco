@@ -1,173 +1,202 @@
-const createProductCard = (productImg, productUrl, productName, price) => {
-    const productCard = document.createElement('div');
+((self) => {
+    'use strict';
 
-    productCard.className = "product-card";
-    productCard.style.scrollSnapAlign = "start";
-    productCard.style.flex = "grid";
-    productCard.style.objectFit = "cover";
-    productCard.style.width = "250px";
-    productCard.style.height = "450px";
-    productCard.style.cursor = "pointer";
-    productContainer.appendChild(productCard);
+    const classes = {
+        sliderWrapper: 'ins-slider-wrapper',
+        productsTitle: 'ins-products-title',
+        productContainer: 'ins-product-container',
+        arrowButton: 'ins-arrow-button',
+        leftArrow: 'ins-left-arrow',
+        rightArrow: 'ins-right-arrow',
+        productCard: 'ins-product-card',
+        productFrame: 'ins-product-frame',
+        productImage: 'ins-product-image',
+        productInfo: 'ins-product-info',
+        productShortDescription: 'ins-product-short-description',
+        productPrice: 'ins-product-price',
+        style: 'ins-custom-style'
+    };
 
-    const productFrame = document.createElement('div');
-    productFrame.className = "product-frame";
-    productFrame.style.position = "relative";
-    productFrame.style.width = "100%";
-    productCard.appendChild(productFrame);
+    const selectors = Object.keys(classes).reduce((createdSelector, key) => {
+        createdSelector[key] = `.${ classes[key] }`;
+        return createdSelector;
+    }, {});
 
-    const productImage = document.createElement('img');
-    
-    productImage.className = "product-image";
-    productImage.src = `${productImg}`;
-    productImage.style.width = "100%";
-    productImage.style.height = "100%";
-    productImage.style.objectFit = "cover";
-    productFrame.appendChild(productImage);
-    
-    const productInfo = document.createElement('div');
+    self.init = async () => {
+        initializeJQuery();
+        self.reset();
+        self.buildHtml();
+        const products = await fetchProducts();
+        products.forEach(product => {
+            const productPrice = product.price === undefined ? 'Out Of Stock' : `${product.price} TL`;
+            self.buildProductHtml(product.img, product.url, product.name, productPrice);
+        });
+        self.buildCss();
+        self.buildEventListeners();
+    };
 
-    productInfo.className = "product-info";
-    productInfo.style.display = "flex";
-    productInfo.style.flexDirection = "column";
-    productInfo.style.gap = "10px";
-    productInfo.style.width = "100%";
-    productInfo.style.paddingTop = "10px";
-    productCard.appendChild(productInfo);
-    
-    const productDescription = document.createElement('p');
+    self.reset = () => {
+        Insider.dom(`${ selectors.sliderWrapper }, ${ selectors.style }`).remove();
+    };
 
-    productDescription.className = "product-short-description";
-    productDescription.innerText = productName;
-    productDescription.style.width = "100%";
-    productDescription.style.height = "20px";
-    productDescription.style.lineHeight = "20px";
-    productDescription.style.opacity = "0.5";
-    productInfo.appendChild(productDescription);
-    const productPrice = document.createElement('span');
+    const initializeJQuery = () => {
+        const jquery = document.createElement("script");
+        jquery.src = "https://code.jquery.com/jquery-3.6.4.min.js";
+        document.body.appendChild(jquery);
+    }
+     
+    const fetchProducts = async() => {
+        const response = await fetch('https://opt-interview-projects.onrender.com/smart-recommender')
+        let products = await response.json();
+        return products;    
+    };
 
-    productPrice.className = "product-price";
-    productPrice.innerText =  price ? `${price} TL` : "Bu ürün stokta yoktur";
-    productPrice.style.fontWeight = "900";
-    productPrice.style.fontSize = "20px";
-    productInfo.appendChild(productPrice);
+    self.buildCss = () => {
+        const { sliderWrapper, productsTitle , productContainer, arrowButton, rightArrow, leftArrow, productCard,
+            productFrame, productImage, productInfo, productShortDescription, productPrice} = selectors;
 
-    productCard.addEventListener("click", () => {
-        window.open(productUrl, '_blank');
-    })
+        const style =
+        `${sliderWrapper} {
+            position: static;
+            width: 80%;
+            margin: 0 auto;
+        }
+        ${productsTitle} {
+            font-size: 25px;
+            font-weight: 500;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+        }
 
-    return productCard;
-}
+        ${productContainer} {
+            scroll-snap-type: x mandatory;
+            display: grid;
+            grid-auto-columns: 20%;
+            align-items: center;
+            grid-auto-flow: column;
+            margin-left: 35px;
+            overflow: hidden;
+            list-style: none;
+            scroll-behavior: smooth;
+        }
+        ${arrowButton} {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #fff 80%);
+            border: none;
+            font-size: 50px;
+            cursor: pointer;
+            position: absolute;
+            z-index: 8;
+            margin-top: 3em;
+        }
+        ${rightArrow} {
+            right: 5%;
+        }
+        ${leftArrow} {
+            left: 8%;
+        }
+        ${productCard} {
+            scroll-snap-align: start;
+            flex: grid;
+            object-fit: cover;
+            width: 250px;
+            height: 450px;
+            cursor: pointer;
+        }
+        ${productFrame} {
+            position: relative;
+            width: 100%;
+        }
+        ${productImage} {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        ${productInfo} {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            padding-top: 10px;
+        }
+        ${productShortDescription} {
+            width: 100%;
+            height: 20px;
+            line-height: 20px;
+            opacity: 0.5;
+        }
+        ${productPrice} {
+            font-weight: 700;
+            font-size: 20px;
+        }
+        @media (max-width: 1024px) and (min-width: 768px) {
+            ${productContainer} {
+                grid-auto-columns: 33%;
+            }
 
-const createProductList = () => {
-    const productList = document.createElement('section');
+        }
+        @media screen and (max-width: 768px) {
+            ${productContainer} {
+                grid-auto-columns: 100%;
+            }  
+        }
+    `;
 
-    productList.className = "slider-wrapper";
-    productList.style.position = "static";
-    productList.style.width = "80%";
-    productList.style.margin = "0 auto";
-    return productList;
-}
+        Insider.dom('<style>').addClass(classes.style).html(style).appendTo('head');
+    };
 
-const createProductsTitle = () => {
-    const productsTitle = document.createElement('h2')
+    self.buildHtml = () => {
+        const { sliderWrapper, productsTitle, productContainer, arrowButton, leftArrow, rightArrow } = classes;
 
-    productsTitle.className = 'product-category';
-    productsTitle.innerHTML = "You might also like";
-    productsTitle.style.fontSize = "25px";
-    productsTitle.style.fontWeight = "500";
-    productsTitle.style.marginBottom = "40px";
-    productsTitle.style.textTransform = "uppercase";
-    return productsTitle;
-}
+        const outerHtml =
+        `<section class=${sliderWrapper}>
+            <h2 class=${productsTitle}>You might also like</h2>
+            <button class="${leftArrow} ${arrowButton}">${'<'}</button>
+            <button class="${rightArrow} ${arrowButton}">${'>'}</button>
+            <div class=${productContainer}></div>
+        </section>`;
 
-const initializeJQuery = () => {
-    const jquery = document.createElement("script");
-    jquery.src = "https://code.jquery.com/jquery-3.6.4.min.js";
-    document.body.appendChild(jquery);
-}
+        Insider.dom('.footer-content').append(outerHtml);
+    };
 
-const createNavigationButton = (buttonDirection) => {
-    const button = document.createElement("button");
+    self.buildProductHtml = (productImg, productUrl, productName, price) => {
+        const { productContainer, productCard, productFrame, productImage, productInfo, productShortDescription, productPrice } = classes;
 
-    button.innerText = buttonDirection == "left" ? "<" : ">";
-    button.style.background = "linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #fff 80%)";
-    button.style.border = "none";
-    button.style.fontSize = "50px";
-    button.style.cursor = "pointer";
-    button.style.position = "absolute";
-    button.style.zIndex = "8";
-    button.style.marginTop = "3em";
+        const innerHtml = `
+            <div class=${productCard}>
+                <div class=${productFrame}>
+                    <a class=${productImage} href =${productUrl}>
+                        <img class=${productImage} src=${productImg}></img>
+                    </a>
+                </div>
+                <div class=${productInfo}>
+                    <p class=${productShortDescription}>${productName}</p>
+                    <span class=${productPrice}>${price}</span>
+                </div>              
+            </div>`;
 
-    if (buttonDirection == "left") button.style.left = "8%";
-    else button.style.right = "8%";
+        Insider.dom(`.${productContainer}`).append(innerHtml);
+    };
 
-    return button;
-}
+    self.buildEventListeners = () => {
+        const { productCard, productContainer, rightArrow, leftArrow } = selectors;
 
-const createProductContainer = () => {
-    const productContainer = document.createElement('div')
+        const card = Insider.dom(productCard).nodes[0];
+        const container = Insider.dom(productContainer).nodes[0];
+        const nextButton = Insider.dom(rightArrow)
+        const prevButton = Insider.dom(leftArrow)
 
-    productContainer.className = "product-container";
-    productContainer.style.scrollSnapType = "x mandatory";
-    productContainer.style.display = "grid";
-    productContainer.style.gridAutoColumns = "20%";
-    productContainer.style.alignItems = "center";
-    productContainer.style.gridAutoFlow = "column";
-    productContainer.style.marginLeft = "35px";
-    productContainer.style.overflow = "hidden";
-    productContainer.style.listStyle = "none";
-    productContainer.style.scrollBehavior = "smooth";
-    return productContainer;
-}
+        Insider.eventManager.once('click.left:arrow', nextButton.selector, () => {
+            container.scrollLeft += card.clientWidth;
+        });
 
-const fetchProducts = async () => {
-    const response = await fetch('https://opt-interview-projects.onrender.com/smart-recommender');
-    let products = await response.json();
-    return products;    
-}
+        Insider.eventManager.once('click.right:arrow', prevButton.selector, () => {
+            container.scrollLeft -= card.clientWidth
+        });
 
-const handleResize = productContainer => {
-    if (window.innerWidth > 1550) productContainer.style.gridAutoColumns = "20%";
-    else if(window.innerWidth > 1250) productContainer.style.gridAutoColumns = "25%";
-    else if(window.innerWidth > 800) productContainer.style.gridAutoColumns = "33%";
-    else if(window.innerWidth > 670) productContainer.style.gridAutoColumns = "50%";
-    else productContainer.style.gridAutoColumns = "100%"
-}
+        Insider.eventManager.once('click.product:card', card, () => {
+            window.open(products.url, '_blank');
+        });
+    };
 
-initializeJQuery();
-
-const productList = createProductList();
-
-const productsTitle = createProductsTitle();
-productList.appendChild(productsTitle);
-
-const previousButton = createNavigationButton("left");
-const nextButton = createNavigationButton("right");
-
-productList.appendChild(previousButton);
-productList.appendChild(nextButton);
-
-const productContainer = createProductContainer();
-productList.appendChild(productContainer);
-
-const products = await fetchProducts();
-
-products.forEach(product => {
-    const item = createProductCard(product.img, product.url, product.name, product.price);
-    productContainer.appendChild(item);
-});
-
-$(".footer-content")[0].appendChild(productList);
-
-nextButton.addEventListener("click", () => {
-    const slideWidth = $(".product-card")[0].clientWidth;
-        productContainer.scrollLeft += slideWidth;
-    });
-
-previousButton.addEventListener("click", () => {
-    const slideWidth = $(".product-card")[0].clientWidth;
-        productContainer.scrollLeft -= slideWidth;
-    });
-
-window.addEventListener('resize', () => handleResize(productContainer));
+    self.init();
+})({});
