@@ -5,6 +5,7 @@
 
 - In one of the files, css style properties were created with string and appended to the head element.
 - In the other, the css is generated with the javascript style function.
+- And the refactored-smart-recommender.js file has the refactored recommendation project. The working logic is the same as in the other files. 
 
 ## What has been done?
 
